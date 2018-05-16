@@ -1,0 +1,34 @@
+#box {
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    background-color: black;
+    left: 200px;
+    top: 180px;
+    border-radius: 50%;
+}
+
+/* body {
+    background-image: url(Maze.png);
+} */
+
+.cellW{
+    min-height: 20px;
+    min-width: 20px;
+    background-color: darkblue;
+    
+ }
+ .cellE{
+    min-height: 20px;
+    min-width: 20px;
+    background-color:orangered;
+ }
+ .row{
+    display: flex;
+    
+    flex-direction: row; 
+ }
+ .cellS{
+    min-height: 20px;
+    min-width: 20px;
+ }
