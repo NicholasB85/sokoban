@@ -7,104 +7,152 @@
 //15
 //21
 
+// const map = [
+//     "WWWWWWWWWWWWWWWWWWWWW",
+//     "W                   W",
+//     "W            W      W",
+//     "W    W              W",
+//     "W                   W",
+//     "W          W        W",
+//     "W                   W",
+//     "W                   W",
+//     "W      W            F",
+//     "S                   W",
+//     "W                   W",
+//     "W              W    W",
+//     "W                   W",
+//     "W                   W",
+//     "WWWWWWWWWWWWWWWWWWWWW"
+// ];
+
 const map = [
-    "WWWWWWWWWWWWWWWWWWWWW",
-    "W                   W",
-    "W                   W",
-    "W                   W",
-    "W                   W",
-    "W                   W",
-    "W                   W",
-    "W                   W",
-    "W                   F",
-    "S                   W",
-    "W                   W",
-    "W                   W",
-    "W                   W",
-    "W                   W",
-    "WWWWWWWWWWWWWWWWWWWWW"
-];
-let boxTop = 8;// box position
-let boxLeft = 8;
-let x = 0;
-let y = 0;
+    "    WWWWW          ",
+    "    W   W          ",
+    "    WB  W          ",
+    "  WWW  BWW         ",
+    "  W       W        ",
+    "WWW W WW W   WWWWWW",
+    "W   W WW WWWWW  OOW",
+    "W B  B          OOW",
+    "WWWWW WWW WSWW  OOW",
+    "    W     WWWWWWWWW",
+    "    WWWWWWW        "
+]
+let playerTop = 8; // box position
+let playerLeft = 8;
+let currentPlayerColIndex = 0;
+let currentPlayerRowIndex = 0;
+let nextPlayerColIndex = 0;
+let nextPlayerRowIndex = 0;
+
 
 let mazeDiv = document.getElementById("maze");
-let box = document.getElementById("box");
-for (let i = 0; i < map.length; i++){
-    let row = map [i];
-    let rowDiv = document.createElement("div");
-    rowDiv.setAttribute("id", "row" + (i + 1));
-    rowDiv.setAttribute("class", "row");
+let player = document.getElementById("box");
 
-    for (let j = 0; j < row.length; j++){
-        let colDiv = document.createElement("div");
-        colDiv.setAttribute("id", "cell" + (j + 1));
-        if (map[i][j] == "W"){
-            colDiv.setAttribute("class", "cellW");
-        // colDiv.textContent = map[i][j];
-    } else if (map[i][j] == " "){
-        colDiv.setAttribute("class", "cellE");
-    }else if (map[i][j] == "S"){
-        boxTop += i*20;
-        boxLeft += j*20;
-        box.style.top = boxTop + "px";
-        box.style.left = boxLeft + "px";
-        x = j;
-        y = i;
-        colDiv.setAttribute("class", "cellS");
-    }else if (map[i][j] == "F"){
-        colDiv.textContent="F";
+
+for (let rowIndex = 0; rowIndex < map.length; rowIndex++) {
+    let mapRow = map[rowIndex];
+    let divRow = document.createElement("div");
+    divRow.setAttribute("data-row", (rowIndex + 1));
+    divRow.setAttribute("class", "row");
+
+
+    for (let colIndex = 0; colIndex < mapRow.length; colIndex++) {
+        let divCol = document.createElement("div");
+        divCol.setAttribute("data-row", (rowIndex + 1));
+        divCol.setAttribute("data-col", (colIndex + 1));
+        if (map[rowIndex][colIndex] == "W") {
+            divCol.setAttribute("class", "cellW");
+            divCol.setAttribute("data-row", (rowIndex + 1));
+            divCol.setAttribute("data-col", (colIndex + 1));
+            // colDiv.textContent = map[i][j];
+        } else if (map[rowIndex][colIndex] == " ") {
+            divCol.setAttribute("class", "cellE");
+            divCol.setAttribute("data-row", (rowIndex + 1));
+            divCol.setAttribute("data-col", (colIndex + 1));
+        } else if (map[rowIndex][colIndex] == "B") {
+            divCol.setAttribute("class", "cellB");
+            divCol.setAttribute("data-row", (rowIndex + 1));
+            divCol.setAttribute("data-col", (colIndex + 1));
+
+        } else if (map[rowIndex][colIndex] == "S") {
+            playerTop += rowIndex * 50;
+            playerLeft += colIndex * 50;
+            player.style.top = playerTop + "px";
+            player.style.left = playerLeft + "px";
+            currentPlayerRowIndex = rowIndex;
+            currentPlayerColIndex = colIndex;
+            divCol.setAttribute("class", "cellS");
+            divCol.setAttribute("data-row", (rowIndex + 1));
+            divCol.setAttribute("data-col", (colIndex + 1));
+        } else if (map[rowIndex][colIndex] == "O") {
+            divCol.setAttribute("class", "cellO");
+            divCol.setAttribute("data-row", (rowIndex + 1));
+            divCol.setAttribute("data-col", (colIndex + 1));
+        }
+
+        divRow.appendChild(divCol);
+
     }
-       
-        rowDiv.appendChild(colDiv);
-        
-    }
-    mazeDiv.appendChild(rowDiv);
+    mazeDiv.appendChild(divRow);
 }
 
-
-document.addEventListener('keydown', (event) => {
-  const keyName = event.key;
-  
-  if (event.key === "ArrowLeft"){
-      
-      if ([" ","S","F"].indexOf(map[y][x-1]) > -1){
-         //console.log(map[x-1][y])  
-        x = x - 1;
-        boxLeft -= 20;
-     
-    }
-  }else if (event.key === "ArrowRight"){
-      //console.log([" ","S","F"].indexOf(map[y][x+1]));
-    if ([" ","S","F"].indexOf(map[y][x+1])> -1){
-      x = x + 1
-      boxLeft += 20;
-      
-  }
+function movePlayer(rowOffset, colOffset) {
+    playerTop += (rowOffset * 50);
+    playerLeft += (colOffset * 50);
 }
-  if (event.key === "ArrowUp"){
-    if ([" ","S","F"].indexOf(map[y-1][x])> -1){
-        y = y - 1;
-        boxTop -= 20;
+
+document.addEventListener('keydown', event => {
+    if (!event.key.startsWith("Arrow")) return false;
+
+    let rowOffset = 0;
+    let colOffset = 0;
+    if (event.key === "ArrowLeft") colOffset = -1;
+    if (event.key === "ArrowRight") colOffset = +1;
+    if (event.key === "ArrowUp") rowOffset = -1;
+    if (event.key === "ArrowDown") rowOffset = +1;
+    
+    nextPlayerRowIndex = currentPlayerRowIndex + rowOffset;
+    nextPlayerColIndex = currentPlayerColIndex + colOffset;
+    
+    const secondCellRowIndex = nextPlayerRowIndex + rowOffset;
+    const secondCellColIndex = nextPlayerColIndex + colOffset;
+
+    const firstCell = document.querySelector("[data-row= '" + (nextPlayerRowIndex + 1) + "'][data-col= '" + (nextPlayerColIndex + 1) + "']");
+    const secondCell = document.querySelector("[data-row= '" + (secondCellRowIndex + 1) + "'][data-col= '" + (secondCellColIndex + 1) + "']");
+    
+    if (!firstCell.classList.contains("cellW")) {
+        if (!firstCell.classList.contains("cellB")) {
+            movePlayer(rowOffset, colOffset);
+
+            currentPlayerRowIndex = nextPlayerRowIndex;
+            currentPlayerColIndex = nextPlayerColIndex;
+            nextPlayerRowIndex += rowOffset;
+            nextPlayerColIndex += colOffset;
+        }
+    }
+    if (firstCell.classList.contains("cellB") && !secondCell.classList.contains("cellW")) {
+        if (firstCell.classList.contains("cellB") && !secondCell.classList.contains("cellB")){
+        console.log("firstCell", firstCell)
+        console.log("secondCell", secondCell)
+        firstCell.classList.remove("cellB");
+        firstCell.classList.add("cellE");
+        secondCell.classList.remove("cellE");
+        secondCell.classList.add("cellB");
+
         
-      }
-     
-  }else if (event.key === "ArrowDown"){
-    if ([" ","S","F"].indexOf(map[y+1][x])> -1){
-      y = y + 1;
-      boxTop += 20;
-      
-  }
- }
 
- 
+        }
+    }
 
-  //console.log('keydown event\n\n' + 'key: ' + keyName);
-  document.getElementById("box").style.left = boxLeft + "px";
-  document.getElementById("box").style.top = boxTop + "px";
-  if (map[y][x] == "F"){
-    alert("win")
-  }
- 
+    // console.log("and this should be at position (row/col):", (playerRowIndex + rowOffset), "/", (playerColIndex + colOffset))
+
+    //console.log('keydown event\n\n' + 'key: ' + keyName);
+    document.getElementById("box").style.left = playerLeft + "px";
+    document.getElementById("box").style.top = playerTop + "px";
+
+    // if (map[y][x] == "F") {
+    //     alert("win")
+    // }
+
 });
